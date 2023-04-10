@@ -1,14 +1,33 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
+import useCurrnetUser from "@/hooks/useCurrentUser";
+import { NextPageContext } from "next";
+import { getSession, signOut } from "next-auth/react";
 
-const inter = Inter({ subsets: ["latin"] });
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default function Home() {
+  const { data: user } = useCurrnetUser();
+
   return (
     <>
       <h1 className="text-2xl text-green-500">Netflix</h1>
+      <p className="text-white">Logged in as: {user?.name}</p>
+      <button className="h-10 w-full bg-white" onClick={() => signOut()}>
+        Logout
+      </button>
     </>
   );
 }
